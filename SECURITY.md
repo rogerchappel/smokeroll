@@ -1,27 +1,28 @@
 # Security Policy
 
+SmokeRoll executes local commands from a checked-in manifest. Treat manifests
+from untrusted repositories like any other local automation.
+
 ## Supported Versions
 
-Replace this section with the supported versions for `smokeroll`.
-
-Example:
-
-```md
-| Version | Supported |
-| --- | --- |
-| .x | Yes |
-| < .0 | No |
-```
-
-If the project does not publish versioned releases yet, say that clearly.
+Until SmokeRoll declares a stable release line, only the default branch is
+expected to receive security fixes.
 
 ## Reporting a Vulnerability
 
-Please do not report suspected vulnerabilities in public issues, pull requests, or discussions.
+Please report suspected vulnerabilities privately through GitHub Security
+Advisories when available. If advisories are not enabled, open a minimal public
+issue that asks for a private reporting path without including exploit details,
+secrets, personal data, or sensitive technical details.
 
-Ask maintainers for the private security reporting path before sharing details.
+## Security Expectations
 
-If no private reporting path exists yet, ask maintainers through public project channels for a private reporting path. Do not include exploit details, secrets, personal data, or sensitive technical details in public messages.
+- Manifests must use explicit \`command\` and \`args\`; SmokeRoll does not invoke a
+  shell.
+- Command \`cwd\` values are contained inside the manifest directory.
+- Transcript files may contain stdout and stderr. Do not run manifests that print
+  secrets unless the transcript destination is private.
+- Environment variables declared in a manifest are visible to the child process.
 
 ## What to Include
 
@@ -29,30 +30,7 @@ When a private reporting path is available, include:
 
 - A clear description of the issue.
 - Affected versions, files, packages, workflows, or configuration.
-- Steps to reproduce, proof of concept, or attack scenario when safe to share.
+- Steps to reproduce or a proof of concept when safe to share.
 - Potential impact.
 - Suggested mitigation, if known.
 
-## Response Expectations
-
-Maintainers review good-faith reports as capacity allows.
-
-Do not imply paid support, guaranteed response times, guaranteed fixes, or service-level agreements unless `smokeroll` explicitly provides them.
-
-## Scope
-
-In scope:
-
-- Vulnerabilities in smokeroll.
-- Insecure default configuration shipped by this project.
-- CI, release, or dependency guidance maintained by this project.
-
-Out of scope:
-
-- General support requests.
-- Requests for guaranteed maintenance timelines.
-- Issues in unrelated downstream projects.
-
-## Disclosure
-
-Coordinate disclosure with maintainers before publishing vulnerability details.
