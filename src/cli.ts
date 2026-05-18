@@ -4,6 +4,7 @@ import { SmokeRollError } from "./errors.js";
 import { loadManifest } from "./manifest.js";
 import { runPlan } from "./runner.js";
 import { writeTranscripts } from "./transcripts.js";
+import { VERSION } from "./version.js";
 
 interface CliOptions {
   manifestPath?: string;
@@ -16,24 +17,24 @@ interface CliOptions {
 }
 
 export async function main(argv = process.argv.slice(2)): Promise<number> {
-  const parsed = parseArgs(argv);
-
-  if (parsed.help) {
-    process.stdout.write(helpText());
-    return 0;
-  }
-
-  if (parsed.version) {
-    process.stdout.write("0.1.0\n");
-    return 0;
-  }
-
-  if (!parsed.manifestPath) {
-    process.stderr.write("Missing manifest path.\n\n" + helpText());
-    return 2;
-  }
-
   try {
+    const parsed = parseArgs(argv);
+
+    if (parsed.help) {
+      process.stdout.write(helpText());
+      return 0;
+    }
+
+    if (parsed.version) {
+      process.stdout.write(`${VERSION}\n`);
+      return 0;
+    }
+
+    if (!parsed.manifestPath) {
+      process.stderr.write("Missing manifest path.\n\n" + helpText());
+      return 2;
+    }
+
     const plan = await loadManifest(parsed.manifestPath);
 
     if (parsed.dryRun) {
@@ -143,4 +144,3 @@ Options:
 if (import.meta.url === `file://${process.argv[1]}`) {
   process.exitCode = await main();
 }
-
