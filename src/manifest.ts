@@ -107,7 +107,8 @@ function validateExpectation(value: unknown, label: string): SmokeExpectation {
     throw new ManifestError(`${label}.expect must be an object.`);
   }
 
-  if (value.exitCode !== undefined && !Number.isInteger(value.exitCode)) {
+  const exitCode = value.exitCode;
+  if (exitCode !== undefined && !Number.isInteger(exitCode)) {
     throw new ManifestError(`${label}.expect.exitCode must be an integer.`);
   }
 
@@ -120,7 +121,7 @@ function validateExpectation(value: unknown, label: string): SmokeExpectation {
   }
 
   return {
-    exitCode: value.exitCode,
+    exitCode: typeof exitCode === "number" ? exitCode : undefined,
     stdoutContains: value.stdoutContains,
     stderrContains: value.stderrContains,
   };
@@ -167,11 +168,10 @@ function isStringRecord(value: unknown): value is Record<string, string> {
 }
 
 function isValidTimeout(value: unknown): value is number {
-  return Number.isInteger(value) && value > 0 && value <= MAX_TIMEOUT_MS;
+  return typeof value === "number" && Number.isInteger(value) && value > 0 && value <= MAX_TIMEOUT_MS;
 }
 
 function isPathInside(candidate: string, parent: string): boolean {
   const relative = path.relative(parent, candidate);
   return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
 }
-
