@@ -20,6 +20,15 @@ describe("cli", () => {
     assert.equal(exitCode, 1);
     assert.match(stdout, /SmokeRoll FAIL/);
   });
+
+  it("reports unknown options without throwing", async () => {
+    const { exitCode, stderr } = await captureCli(() =>
+      main(["run", "fixtures/pass/smokeroll.json", "--wat"]),
+    );
+
+    assert.equal(exitCode, 1);
+    assert.match(stderr, /Unknown option/);
+  });
 });
 
 async function captureCli(run: () => Promise<number>): Promise<{
