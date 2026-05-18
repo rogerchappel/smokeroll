@@ -1,0 +1,30 @@
+{
+  "name": "smokeroll",
+  "version": 1,
+  "entrypoint": "smokeroll run <manifest>",
+  "inputs": {
+    "manifest": "smokeroll.json",
+    "requiredFields": ["version", "commands"],
+    "commandFields": ["name", "command", "args", "cwd", "env", "expect", "timeoutMs"]
+  },
+  "execution": {
+    "mode": "sequential",
+    "shell": false,
+    "cwdPolicy": "relative-to-manifest-and-contained",
+    "defaultTimeoutMs": 30000,
+    "maxTimeoutMs": 900000
+  },
+  "outputs": {
+    "console": "summary",
+    "markdownTranscriptFlag": "--transcript",
+    "jsonTranscriptFlag": "--json",
+    "dryRunFlag": "--dry-run"
+  },
+  "verification": [
+    "npm run check",
+    "npm test",
+    "npm run smoke",
+    "bash scripts/validate.sh"
+  ]
+}
+
