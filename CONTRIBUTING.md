@@ -74,6 +74,24 @@ Examples:
 
 If verification cannot be run, explain why and provide the exact command maintainers should run.
 
+For SmokeRoll behavior changes, prefer this full local gate:
+
+\`\`\`sh
+npm run check
+npm test
+npm run smoke
+bash scripts/validate.sh
+\`\`\`
+
+When adding manifest features, include at least one fixture that exercises the
+new behavior and one transcript assertion when practical.
+
+## Manifest Safety
+
+Manifest changes deserve the same review as script changes. Keep commands
+explicit, avoid shell-specific behavior, and do not commit manifests that print
+secrets into transcripts.
+
 ## Maintainer Review
 
 Maintainers may request narrower scope, clearer verification, additional tests, or safer defaults before merging.
