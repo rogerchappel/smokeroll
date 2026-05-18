@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "commands": [
+    {
+      "name": "prints greeting",
+      "command": "node",
+      "args": ["hello.js"],
+      "cwd": ".",
+      "env": {
+        "SMOKEROLL_NAME": "SmokeRoll"
+      },
+      "expect": {
+        "exitCode": 0,
+        "stdoutContains": ["hello SmokeRoll"],
+        "stderrContains": ["fixture warning"]
+      },
+      "timeoutMs": 5000
+    }
+  ]
+}
+

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "commands": [
+    {
+      "name": "missing expected text",
+      "command": "node",
+      "args": ["fail.js"],
+      "cwd": ".",
+      "expect": {
+        "exitCode": 0,
+        "stdoutContains": ["this text is absent"]
+      },
+      "timeoutMs": 5000
+    }
+  ]
+}
+

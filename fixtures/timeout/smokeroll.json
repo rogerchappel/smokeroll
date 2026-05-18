@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "commands": [
+    {
+      "name": "times out",
+      "command": "node",
+      "args": ["slow.js"],
+      "cwd": ".",
+      "expect": {
+        "exitCode": 0
+      },
+      "timeoutMs": 50
+    }
+  ]
+}
+
