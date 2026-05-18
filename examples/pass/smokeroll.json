@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "commands": [
+    {
+      "name": "node can run a tiny script",
+      "command": "node",
+      "args": ["check.js"],
+      "cwd": ".",
+      "env": {
+        "SMOKEROLL_EXAMPLE": "ready"
+      },
+      "expect": {
+        "exitCode": 0,
+        "stdoutContains": ["example ready"]
+      },
+      "timeoutMs": 5000
+    }
+  ]
+}
+

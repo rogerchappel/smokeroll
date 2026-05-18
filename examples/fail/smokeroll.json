@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "commands": [
+    {
+      "name": "demonstrates transcript failure",
+      "command": "node",
+      "args": ["check.js"],
+      "cwd": ".",
+      "expect": {
+        "exitCode": 0,
+        "stdoutContains": ["expected text"]
+      }
+    }
+  ]
+}
+
