@@ -1,0 +1,45 @@
+{
+  "name": "smokeroll",
+  "version": "0.1.0",
+  "description": "Local-first CLI smoke runner with JSON and Markdown transcripts.",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "bin": {
+    "smokeroll": "./dist/src/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "dist/src",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "pretest": "npm run build",
+    "test": "node --test dist/test/*.test.js",
+    "smoke": "node dist/src/cli.js run examples/pass/smokeroll.json --transcript tmp/smoke.md --json tmp/smoke.json",
+    "package:smoke": "npm pack --dry-run",
+    "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke"
+  },
+  "keywords": [
+    "cli",
+    "smoke-test",
+    "local-first",
+    "transcript",
+    "testing"
+  ],
+  "author": "Roger Chappel",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "typescript": "^5.8.3"
+  }
+}
