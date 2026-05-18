@@ -17,11 +17,19 @@ export function renderDryRun(plan: SmokePlan): string {
     );
 
     if (command.expect.stdoutContains.length > 0) {
-      lines.push(`   stdout contains: ${command.expect.stdoutContains.map(JSON.stringify).join(", ")}`);
+      lines.push(
+        `   stdout contains: ${command.expect.stdoutContains
+          .map((value) => JSON.stringify(value))
+          .join(", ")}`,
+      );
     }
 
     if (command.expect.stderrContains.length > 0) {
-      lines.push(`   stderr contains: ${command.expect.stderrContains.map(JSON.stringify).join(", ")}`);
+      lines.push(
+        `   stderr contains: ${command.expect.stderrContains
+          .map((value) => JSON.stringify(value))
+          .join(", ")}`,
+      );
     }
 
     const envKeys = Object.keys(command.env);
@@ -42,4 +50,3 @@ function shellQuote(value: string): string {
 
   return JSON.stringify(value);
 }
-
