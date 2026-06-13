@@ -41,5 +41,13 @@
   "devDependencies": {
     "@types/node": "^22.15.21",
     "typescript": "^5.8.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerchappel/smokeroll.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/smokeroll/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/smokeroll#readme"
 }
