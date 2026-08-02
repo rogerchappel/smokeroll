@@ -8,22 +8,22 @@ local execution, readable receipts.
 
 ## Install
 
-\`\`\`sh
+```sh
 npm install
 npm run build
-\`\`\`
+```
 
 For local development, run the CLI directly from the built output:
 
-\`\`\`sh
+```sh
 node dist/src/cli.js run examples/pass/smokeroll.json
-\`\`\`
+```
 
 ## Manifest
 
-\`smokeroll.json\` contains a version and a list of commands:
+`smokeroll.json` contains a version and a list of commands:
 
-\`\`\`json
+```json
 {
   "version": 1,
   "commands": [
@@ -44,34 +44,34 @@ node dist/src/cli.js run examples/pass/smokeroll.json
     }
   ]
 }
-\`\`\`
+```
 
 ## Use
 
 Print the plan without executing it:
 
-\`\`\`sh
+```sh
 node dist/src/cli.js run examples/pass/smokeroll.json --dry-run
-\`\`\`
+```
 
 Run the manifest and write transcripts:
 
-\`\`\`sh
+```sh
 node dist/src/cli.js run examples/pass/smokeroll.json \\
   --transcript tmp/smoke.md \\
   --json tmp/smoke.json
-\`\`\`
+```
 
-SmokeRoll exits \`0\` when every command passes and \`1\` when any expectation
+SmokeRoll exits `0` when every command passes and `1` when any expectation
 fails. Manifest and usage errors also exit non-zero with a short error message.
 
 ## Safety Model
 
-- Commands run through \`spawn(..., { shell: false })\`; there is no shell
+- Commands run through `spawn(..., { shell: false })`; there is no shell
   expansion or implicit pipe handling.
-- \`command\` and \`args\` are explicit argv values.
-- \`cwd\` resolves relative to the manifest directory.
-- \`cwd\` must stay inside the manifest directory.
+- `command` and `args` are explicit argv values.
+- `cwd` resolves relative to the manifest directory.
+- `cwd` must stay inside the manifest directory.
 - Timeouts terminate long-running commands.
 
 Review manifests from untrusted repositories before running them. SmokeRoll
@@ -79,15 +79,15 @@ reduces shell surprises, but it still executes local commands.
 
 ## Verify
 
-\`\`\`sh
+```sh
 npm run check
 npm test
 npm run smoke
 bash scripts/validate.sh
-\`\`\`
+```
 
-The \`npm run smoke\` script writes \`tmp/smoke.md\` and \`tmp/smoke.json\`
-from \`examples/pass/smokeroll.json\`.
+The `npm run smoke` script writes `tmp/smoke.md` and `tmp/smoke.json`
+from `examples/pass/smokeroll.json`.
 
 ## Repository Docs
 
