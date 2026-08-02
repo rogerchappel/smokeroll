@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { realpathSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import { renderDryRun } from "./dry-run.js";
 import { SmokeRollError } from "./errors.js";
 import { loadManifest } from "./manifest.js";
@@ -141,6 +143,10 @@ Options:
 `;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+const invokedModuleUrl = process.argv[1]
+  ? pathToFileURL(realpathSync(process.argv[1])).href
+  : undefined;
+
+if (import.meta.url === invokedModuleUrl) {
   process.exitCode = await main();
 }

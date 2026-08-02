@@ -29,7 +29,7 @@
     "pretest": "npm run build",
     "test": "node --test dist/test/*.test.js",
     "smoke": "node dist/src/cli.js run examples/pass/smokeroll.json --transcript tmp/smoke.md --json tmp/smoke.json",
-    "package:smoke": "npm pack --dry-run",
+    "package:smoke": "bash scripts/package-smoke.sh",
     "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke"
   },
   "keywords": [
@@ -41,6 +41,9 @@
   ],
   "author": "Roger Chappel",
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
     "@types/node": "^22.15.21",
     "typescript": "^5.8.3"
