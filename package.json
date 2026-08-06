@@ -30,6 +30,7 @@
     "test": "node --test dist/test/*.test.js",
     "smoke": "node dist/src/cli.js run examples/pass/smokeroll.json --transcript tmp/smoke.md --json tmp/smoke.json",
     "package:smoke": "bash scripts/package-smoke.sh",
+    "release:artifact:validate": "node scripts/validate-release-artifact.mjs",
     "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke"
   },
   "keywords": [
