@@ -8,9 +8,20 @@ local execution, readable receipts.
 
 ## Install
 
+Before the first npm release, install from a checkout and build locally:
+
 ```sh
-npm install
+npm ci
 npm run build
+```
+
+You can also install a tarball produced from a checkout with
+`npm pack`, for example `npm install ./smokeroll-0.1.0.tgz`.
+
+After a version is published to npm, consumers can install it normally:
+
+```sh
+npm install smokeroll
 ```
 
 For local development, run the CLI directly from the built output:
@@ -100,4 +111,3 @@ from `examples/pass/smokeroll.json`.
 ## License
 
 MIT
-
