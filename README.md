@@ -83,7 +83,12 @@ fails. Manifest and usage errors also exit non-zero with a short error message.
 - `command` and `args` are explicit argv values.
 - `cwd` resolves relative to the manifest directory.
 - `cwd` must stay inside the manifest directory.
-- Timeouts terminate long-running commands.
+- On POSIX platforms, timed-out commands run in their own process group.
+  SmokeRoll sends the whole group `SIGTERM`, waits up to 500 ms, then sends
+  `SIGKILL`; this prevents inherited output pipes from keeping a run open.
+- Windows does not provide POSIX process groups. SmokeRoll terminates the direct
+  command on timeout there, so commands that create descendants must arrange
+  their own cleanup.
 
 Review manifests from untrusted repositories before running them. SmokeRoll
 reduces shell surprises, but it still executes local commands.

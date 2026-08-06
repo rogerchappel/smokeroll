@@ -3,6 +3,7 @@ import { ExecutionError } from "./errors.js";
 import type { CommandExecution, ResolvedSmokeCommand } from "./types.js";
 
 const MAX_BUFFER_BYTES = 1024 * 1024;
+const TERMINATION_GRACE_MS = 500;
 
 export async function executeCommand(command: ResolvedSmokeCommand): Promise<CommandExecution> {
   const started = performance.now();
@@ -18,16 +19,17 @@ export async function executeCommand(command: ResolvedSmokeCommand): Promise<Com
       env: { ...process.env, ...command.env },
       shell: false,
       windowsHide: true,
+      detached: process.platform !== "win32",
     });
 
     const timer = setTimeout(() => {
       timedOut = true;
-      child.kill("SIGTERM");
+      signalProcessTree(child.pid, "SIGTERM", () => child.kill("SIGTERM"));
       setTimeout(() => {
         if (!settled) {
-          child.kill("SIGKILL");
+          signalProcessTree(child.pid, "SIGKILL", () => child.kill("SIGKILL"));
         }
-      }, 500).unref();
+      }, TERMINATION_GRACE_MS).unref();
     }, command.timeoutMs);
     timer.unref();
 
@@ -44,6 +46,7 @@ export async function executeCommand(command: ResolvedSmokeCommand): Promise<Com
 
     child.on("error", (error) => {
       clearTimeout(timer);
+      settled = true;
       reject(new ExecutionError(`${command.name}: ${error.message}`));
     });
 
@@ -62,6 +65,26 @@ export async function executeCommand(command: ResolvedSmokeCommand): Promise<Com
   });
 }
 
+function signalProcessTree(
+  pid: number | undefined,
+  signal: NodeJS.Signals,
+  fallback: () => boolean,
+): void {
+  if (process.platform === "win32" || pid === undefined) {
+    fallback();
+    return;
+  }
+
+  try {
+    process.kill(-pid, signal);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ESRCH") {
+      throw error;
+    }
+    fallback();
+  }
+}
+
 function appendBounded(current: string, chunk: string): string {
   const next = current + chunk;
   if (Buffer.byteLength(next, "utf8") <= MAX_BUFFER_BYTES) {
@@ -70,4 +93,3 @@ function appendBounded(current: string, chunk: string): string {
 
   return next.slice(Math.max(0, next.length - MAX_BUFFER_BYTES));
 }
-
