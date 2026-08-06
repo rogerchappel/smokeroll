@@ -10,6 +10,8 @@ format and uses semantic versioning when versioned releases are published.
 ### Added
 
 - Initial project setup.
+- Release automation that validates one package tarball, publishes that exact
+  artifact to npm with provenance, and attaches it to the GitHub release.
 
 ## Release Links
 
