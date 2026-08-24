@@ -57,6 +57,9 @@ node dist/src/cli.js run examples/pass/smokeroll.json
 }
 ```
 
+`expect.exitCode` must be an integer from `0` through `255`, matching the
+portable process exit-status range.
+
 ## Use
 
 Print the plan without executing it:
