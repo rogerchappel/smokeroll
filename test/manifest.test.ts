@@ -18,6 +18,29 @@ describe("manifest validation", () => {
     assert.throws(() => validateManifest({ version: 1, commands: [] }), ManifestError);
   });
 
+  for (const exitCode of [0, 255]) {
+    it(`accepts expected exit code ${exitCode}`, () => {
+      const manifest = validateManifest({
+        version: 1,
+        commands: [{ name: "boundary", command: "node", expect: { exitCode } }],
+      });
+
+      assert.equal(manifest.commands[0]?.expect?.exitCode, exitCode);
+    });
+  }
+
+  for (const exitCode of [-1, 256, 1.5, Number.NaN, Number.POSITIVE_INFINITY]) {
+    it(`rejects unsupported expected exit code ${exitCode}`, () => {
+      assert.throws(
+        () => validateManifest({
+          version: 1,
+          commands: [{ name: "invalid", command: "node", expect: { exitCode } }],
+        }),
+        /commands\[0\]\.expect\.exitCode must be an integer from 0 to 255/,
+      );
+    });
+  }
+
   it("resolves fixture command defaults", async () => {
     const plan = await loadManifest("fixtures/pass/smokeroll.json");
     const command = plan.commands[0];
@@ -29,4 +52,3 @@ describe("manifest validation", () => {
     assert.equal(command.cwd, path.resolve("fixtures/pass"));
   });
 });
-
