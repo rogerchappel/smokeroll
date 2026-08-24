@@ -108,8 +108,11 @@ function validateExpectation(value: unknown, label: string): SmokeExpectation {
   }
 
   const exitCode = value.exitCode;
-  if (exitCode !== undefined && !Number.isInteger(exitCode)) {
-    throw new ManifestError(`${label}.expect.exitCode must be an integer.`);
+  if (
+    exitCode !== undefined &&
+    (!Number.isInteger(exitCode) || (exitCode as number) < 0 || (exitCode as number) > 255)
+  ) {
+    throw new ManifestError(`${label}.expect.exitCode must be an integer from 0 to 255.`);
   }
 
   if (value.stdoutContains !== undefined && !isStringArray(value.stdoutContains)) {
