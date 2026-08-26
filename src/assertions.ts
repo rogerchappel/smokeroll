@@ -10,6 +10,13 @@ export function evaluateCommand(
 ): AssertionResult[] {
   const assertions: AssertionResult[] = [];
 
+  if (execution.error) {
+    assertions.push({
+      ok: false,
+      message: `spawn error ${execution.error.code}: ${execution.error.message}`,
+    });
+  }
+
   assertions.push({
     ok: !execution.timedOut,
     message: execution.timedOut
@@ -50,4 +57,3 @@ function formatExit(execution: CommandExecution): string {
 
   return execution.signal ?? "unknown";
 }
-

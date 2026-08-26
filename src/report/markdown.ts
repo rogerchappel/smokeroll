@@ -36,6 +36,12 @@ function renderCommand(result: SmokeCommandResult): string[] {
     "| --- | --- |",
   ];
 
+  if (execution.error) {
+    lines.splice(6, 0,
+      "- Spawn error: `" + execution.error.code + "` — " + execution.error.message,
+    );
+  }
+
   for (const assertion of result.assertions) {
     lines.push("| " + escapeTable(assertion.message) + " | " + (assertion.ok ? "PASS" : "FAIL") + " |");
   }
@@ -57,4 +63,3 @@ function appendBlock(lines: string[], label: string, value: string): void {
 function escapeTable(value: string): string {
   return value.replaceAll("|", "\\|");
 }
-
