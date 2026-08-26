@@ -42,6 +42,10 @@ export interface CommandExecution {
   durationMs: number;
   stdout: string;
   stderr: string;
+  error?: {
+    code: string;
+    message: string;
+  };
 }
 
 export interface AssertionResult {
@@ -71,4 +75,3 @@ export interface RunOptions {
   jsonPath?: string;
   failFast?: boolean;
 }
-

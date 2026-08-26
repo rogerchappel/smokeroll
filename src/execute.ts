@@ -1,5 +1,4 @@
 import { spawn } from "node:child_process";
-import { ExecutionError } from "./errors.js";
 import type { CommandExecution, ResolvedSmokeCommand } from "./types.js";
 
 const MAX_BUFFER_BYTES = 1024 * 1024;
@@ -8,7 +7,7 @@ const TERMINATION_GRACE_MS = 500;
 export async function executeCommand(command: ResolvedSmokeCommand): Promise<CommandExecution> {
   const started = performance.now();
 
-  return await new Promise<CommandExecution>((resolve, reject) => {
+  return await new Promise<CommandExecution>((resolve) => {
     let stdout = "";
     let stderr = "";
     let timedOut = false;
@@ -45,12 +44,29 @@ export async function executeCommand(command: ResolvedSmokeCommand): Promise<Com
     });
 
     child.on("error", (error) => {
+      if (settled) {
+        return;
+      }
       clearTimeout(timer);
       settled = true;
-      reject(new ExecutionError(`${command.name}: ${error.message}`));
+      resolve({
+        exitCode: null,
+        signal: null,
+        timedOut: false,
+        durationMs: Math.round(performance.now() - started),
+        stdout,
+        stderr,
+        error: {
+          code: (error as NodeJS.ErrnoException).code ?? "SPAWN_ERROR",
+          message: error.message,
+        },
+      });
     });
 
     child.on("close", (exitCode, signal) => {
+      if (settled) {
+        return;
+      }
       clearTimeout(timer);
       settled = true;
       resolve({
