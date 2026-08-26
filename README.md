@@ -79,6 +79,13 @@ node dist/src/cli.js run examples/pass/smokeroll.json \\
 SmokeRoll exits `0` when every command passes and `1` when any expectation
 fails. Manifest and usage errors also exit non-zero with a short error message.
 
+If a command cannot be spawned, such as when its executable is missing,
+SmokeRoll records a failed command result instead of aborting the run. Markdown
+and JSON transcripts include the spawn error code and diagnostic message.
+Normal mode continues to later commands; `--fail-fast` writes the requested
+receipts and stops after the failed spawn. In either mode, the CLI exits `1`
+when a spawn fails.
+
 ## Safety Model
 
 - Commands run through `spawn(..., { shell: false })`; there is no shell
