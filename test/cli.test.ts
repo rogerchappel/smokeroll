@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, it } from "node:test";
 import { main } from "../src/cli.js";
 
@@ -28,6 +31,41 @@ describe("cli", () => {
 
     assert.equal(exitCode, 1);
     assert.match(stderr, /Unknown option/);
+  });
+
+  it("writes failed spawn receipts and exits nonzero", async () => {
+    const outputDir = await mkdtemp(path.join(tmpdir(), "smokeroll-spawn-"));
+    const markdownPath = path.join(outputDir, "result.md");
+    const jsonPath = path.join(outputDir, "result.json");
+
+    try {
+      const { exitCode, stdout, stderr } = await captureCli(() =>
+        main([
+          "run",
+          "fixtures/spawn-failure/smokeroll.json",
+          "--fail-fast",
+          "--transcript",
+          markdownPath,
+          "--json",
+          jsonPath,
+        ]),
+      );
+
+      assert.equal(exitCode, 1);
+      assert.match(stdout, /SmokeRoll FAIL: 1 command run/);
+      assert.equal(stderr, "");
+
+      const markdown = await readFile(markdownPath, "utf8");
+      assert.match(markdown, /FAIL: missing command/);
+      assert.match(markdown, /Spawn error: `ENOENT`/);
+
+      const json = JSON.parse(await readFile(jsonPath, "utf8"));
+      assert.equal(json.passed, false);
+      assert.equal(json.results.length, 1);
+      assert.equal(json.results[0].execution.error.code, "ENOENT");
+    } finally {
+      await rm(outputDir, { recursive: true, force: true });
+    }
   });
 });
 
