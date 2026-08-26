@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "commands": [
+    {
+      "name": "missing command",
+      "command": "definitely-not-a-real-command-smokeroll",
+      "expect": { "exitCode": 0 }
+    },
+    {
+      "name": "continues after spawn failure",
+      "command": "node",
+      "args": ["-e", "process.stdout.write('continued')"],
+      "expect": { "exitCode": 0, "stdoutContains": ["continued"] }
+    }
+  ]
+}

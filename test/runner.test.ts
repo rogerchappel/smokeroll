@@ -34,6 +34,29 @@ async function waitForProcessExit(pid: number, timeoutMs: number): Promise<numbe
 }
 
 describe("runPlan", () => {
+  it("records spawn failures and continues by default", async () => {
+    const result = await runPlan(await loadManifest("fixtures/spawn-failure/smokeroll.json"));
+
+    assert.equal(result.passed, false);
+    assert.equal(result.results.length, 2);
+    assert.equal(result.results[0]?.execution.exitCode, null);
+    assert.equal(result.results[0]?.execution.error?.code, "ENOENT");
+    assert.match(result.results[0]?.execution.error?.message ?? "", /ENOENT/);
+    assert.equal(result.results[0]?.passed, false);
+    assert.equal(result.results[1]?.passed, true);
+  });
+
+  it("stops after a spawn failure in fail-fast mode", async () => {
+    const result = await runPlan(
+      await loadManifest("fixtures/spawn-failure/smokeroll.json"),
+      { failFast: true },
+    );
+
+    assert.equal(result.passed, false);
+    assert.equal(result.results.length, 1);
+    assert.equal(result.results[0]?.execution.error?.code, "ENOENT");
+  });
+
   it("passes the pass fixture", async () => {
     const result = await runPlan(await loadManifest("fixtures/pass/smokeroll.json"));
 
