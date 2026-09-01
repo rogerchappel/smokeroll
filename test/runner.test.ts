@@ -6,6 +6,7 @@ import { runPlan } from "../src/runner.js";
 
 const DESCENDANT_EXIT_TIMEOUT_MS = 1_000;
 const DESCENDANT_EXIT_POLL_MS = 20;
+const MAX_BUFFER_BYTES = 1024 * 1024;
 
 async function waitForProcessExit(pid: number, timeoutMs: number): Promise<number> {
   const started = performance.now();
@@ -34,6 +35,51 @@ async function waitForProcessExit(pid: number, timeoutMs: number): Promise<numbe
 }
 
 describe("runPlan", () => {
+  it("bounds multibyte stdout and stderr without malformed characters", async () => {
+    const execution = await executeCommand({
+      name: "multibyte output",
+      command: process.execPath,
+      args: ["-e", "const s='😀'.repeat(300000);process.stdout.write(s);process.stderr.write(s)"],
+      cwd: process.cwd(),
+      env: {},
+      expect: { exitCode: 0, stdoutContains: [], stderrContains: [] },
+      timeoutMs: 10_000,
+    });
+
+    assert.ok(Buffer.byteLength(execution.stdout, "utf8") <= MAX_BUFFER_BYTES);
+    assert.ok(Buffer.byteLength(execution.stderr, "utf8") <= MAX_BUFFER_BYTES);
+    assert.doesNotMatch(execution.stdout, /\uFFFD/);
+    assert.doesNotMatch(execution.stderr, /\uFFFD/);
+    assert.match(execution.stdout, /^😀+$/u);
+    assert.match(execution.stderr, /^😀+$/u);
+  });
+
+  it("preserves valid UTF-8 when multibyte sequences cross stream chunks", async () => {
+    const script = [
+      "const bytes=Buffer.from('😀')",
+      "for (const stream of [process.stdout,process.stderr]) {",
+      "stream.write('x'.repeat(1024*1024-1))",
+      "stream.write(bytes.subarray(0,2))",
+      "setImmediate(()=>stream.write(bytes.subarray(2)))",
+      "}",
+    ].join(";");
+    const execution = await executeCommand({
+      name: "boundary output",
+      command: process.execPath,
+      args: ["-e", script],
+      cwd: process.cwd(),
+      env: {},
+      expect: { exitCode: 0, stdoutContains: [], stderrContains: [] },
+      timeoutMs: 10_000,
+    });
+
+    for (const output of [execution.stdout, execution.stderr]) {
+      assert.ok(Buffer.byteLength(output, "utf8") <= MAX_BUFFER_BYTES);
+      assert.doesNotMatch(output, /\uFFFD/);
+      assert.match(output, /😀$/u);
+    }
+  });
+
   it("records spawn failures and continues by default", async () => {
     const result = await runPlan(await loadManifest("fixtures/spawn-failure/smokeroll.json"));
 
