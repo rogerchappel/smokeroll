@@ -103,9 +103,15 @@ function signalProcessTree(
 
 function appendBounded(current: string, chunk: string): string {
   const next = current + chunk;
-  if (Buffer.byteLength(next, "utf8") <= MAX_BUFFER_BYTES) {
+  const encoded = Buffer.from(next, "utf8");
+  if (encoded.byteLength <= MAX_BUFFER_BYTES) {
     return next;
   }
 
-  return next.slice(Math.max(0, next.length - MAX_BUFFER_BYTES));
+  let start = encoded.byteLength - MAX_BUFFER_BYTES;
+  while (start < encoded.byteLength && (encoded[start]! & 0xc0) === 0x80) {
+    start += 1;
+  }
+
+  return encoded.subarray(start).toString("utf8");
 }
