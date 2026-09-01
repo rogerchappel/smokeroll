@@ -86,6 +86,11 @@ Normal mode continues to later commands; `--fail-fast` writes the requested
 receipts and stops after the failed spawn. In either mode, the CLI exits `1`
 when a spawn fails.
 
+Each command receipt retains at most 1,048,576 UTF-8 bytes from the end of
+stdout and 1,048,576 UTF-8 bytes from the end of stderr. Truncation preserves
+complete Unicode characters, so Markdown and JSON transcripts do not contain
+replacement characters introduced at the retention boundary.
+
 ## Safety Model
 
 - Commands run through `spawn(..., { shell: false })`; there is no shell
