@@ -5,7 +5,7 @@ import { renderDryRun } from "./dry-run.js";
 import { SmokeRollError } from "./errors.js";
 import { loadManifest } from "./manifest.js";
 import { runPlan } from "./runner.js";
-import { writeTranscripts } from "./transcripts.js";
+import { validateTranscriptDestinations, writeTranscripts } from "./transcripts.js";
 import { VERSION } from "./version.js";
 
 interface CliOptions {
@@ -36,6 +36,11 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
       process.stderr.write("Missing manifest path.\n\n" + helpText());
       return 2;
     }
+
+    validateTranscriptDestinations({
+      markdown: parsed.transcriptPath,
+      json: parsed.jsonPath,
+    });
 
     const plan = await loadManifest(parsed.manifestPath);
 
@@ -84,6 +89,11 @@ function parseArgs(argv: string[]): CliOptions {
 
   if (command !== "run") {
     throw new SmokeRollError(`Unknown command: ${command}`);
+  }
+
+  if (args[0] === "--help" || args[0] === "-h") {
+    options.help = true;
+    return options;
   }
 
   options.manifestPath = args.shift();
@@ -137,6 +147,7 @@ Options:
   --dry-run              Print the resolved plan without executing commands.
   --transcript <path>    Write a Markdown transcript.
   --json <path>          Write a JSON transcript.
+                         Must differ from --transcript after path resolution.
   --fail-fast            Stop after the first failed command.
   -h, --help             Show help.
   -v, --version          Show version.
