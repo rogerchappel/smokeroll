@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { access, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, it } from "node:test";
@@ -13,6 +13,38 @@ describe("cli", () => {
 
     assert.equal(exitCode, 0);
     assert.match(stdout, /SmokeRoll plan/);
+  });
+
+  it("shows run help without treating the flag as a manifest", async () => {
+    const { exitCode, stdout, stderr } = await captureCli(() => main(["run", "--help"]));
+
+    assert.equal(exitCode, 0);
+    assert.match(stdout, /Usage:/);
+    assert.equal(stderr, "");
+  });
+
+  it("rejects colliding transcript destinations before loading the manifest", async () => {
+    const outputDir = await mkdtemp(path.join(tmpdir(), "smokeroll-collision-"));
+    const outputPath = path.join(outputDir, "receipt.out");
+
+    try {
+      const { exitCode, stderr } = await captureCli(() =>
+        main([
+          "run",
+          "missing-manifest.json",
+          "--transcript",
+          outputPath,
+          "--json",
+          path.join(outputDir, ".", "receipt.out"),
+        ]),
+      );
+
+      assert.equal(exitCode, 1);
+      assert.match(stderr, /destinations must be different paths/);
+      await assert.rejects(access(outputPath));
+    } finally {
+      await rm(outputDir, { recursive: true, force: true });
+    }
   });
 
   it("returns failure for failing fixtures", async () => {
