@@ -76,6 +76,10 @@ node dist/src/cli.js run examples/pass/smokeroll.json \\
   --json tmp/smoke.json
 ```
 
+`smokeroll run --help` prints usage without reading a manifest. Markdown and
+JSON transcript destinations must resolve to different paths; SmokeRoll rejects
+a collision before loading the manifest or running commands.
+
 SmokeRoll exits `0` when every command passes and `1` when any expectation
 fails. Manifest and usage errors also exit non-zero with a short error message.
 
