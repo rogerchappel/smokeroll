@@ -60,6 +60,9 @@ node dist/src/cli.js run examples/pass/smokeroll.json
 `expect.exitCode` must be an integer from `0` through `255`, matching the
 portable process exit-status range.
 
+`timeoutMs` must be an integer from `1` through `900000` (15 minutes) and
+defaults to `30000`.
+
 ## Use
 
 Print the plan without executing it:
@@ -83,12 +86,14 @@ a collision before loading the manifest or running commands.
 SmokeRoll exits `0` when every command passes and `1` when any expectation
 fails. Manifest and usage errors also exit non-zero with a short error message.
 
-If a command cannot be spawned, such as when its executable is missing,
-SmokeRoll records a failed command result instead of aborting the run. Markdown
-and JSON transcripts include the spawn error code and diagnostic message.
-Normal mode continues to later commands; `--fail-fast` writes the requested
-receipts and stops after the failed spawn. In either mode, the CLI exits `1`
-when a spawn fails.
+If a command cannot be spawned, such as when its executable is missing or
+when its argv or environment values are invalid (for example a null byte
+in an argument or an environment value), SmokeRoll records a failed
+command result instead of aborting the run. Markdown and JSON transcripts
+include the spawn error code and diagnostic message. Normal mode continues
+to later commands; `--fail-fast` writes the requested receipts and stops
+after the failed spawn. In either mode, the CLI exits `1` when a spawn
+fails.
 
 Each command receipt retains at most 1,048,576 UTF-8 bytes from the end of
 stdout and 1,048,576 UTF-8 bytes from the end of stderr. Truncation preserves
