@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "commands": [
+    {
+      "name": "null byte in env",
+      "command": "node",
+      "args": ["-e", "process.stdout.write('never runs')"],
+      "env": { "SMOKEROLL_BAD": "a\u0000b" },
+      "expect": { "exitCode": 0, "stdoutContains": ["never runs"] }
+    },
+    {
+      "name": "continues after invalid env",
+      "command": "node",
+      "args": ["-e", "process.stdout.write('continued')"],
+      "expect": { "exitCode": 0, "stdoutContains": ["continued"] }
+    }
+  ]
+}
