@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import type { CommandExecution, ResolvedSmokeCommand } from "./types.js";
 
 const MAX_BUFFER_BYTES = 1024 * 1024;
@@ -13,13 +14,31 @@ export async function executeCommand(command: ResolvedSmokeCommand): Promise<Com
     let timedOut = false;
     let settled = false;
 
-    const child = spawn(command.command, command.args, {
-      cwd: command.cwd,
-      env: { ...process.env, ...command.env },
-      shell: false,
-      windowsHide: true,
-      detached: process.platform !== "win32",
-    });
+    let child: ChildProcessWithoutNullStreams;
+
+    try {
+      child = spawn(command.command, command.args, {
+        cwd: command.cwd,
+        env: { ...process.env, ...command.env },
+        shell: false,
+        windowsHide: true,
+        detached: process.platform !== "win32",
+      });
+    } catch (error) {
+      resolve({
+        exitCode: null,
+        signal: null,
+        timedOut: false,
+        durationMs: Math.round(performance.now() - started),
+        stdout,
+        stderr,
+        error: {
+          code: (error as NodeJS.ErrnoException).code ?? "SPAWN_ERROR",
+          message: error instanceof Error ? error.message : String(error),
+        },
+      });
+      return;
+    }
 
     const timer = setTimeout(() => {
       timedOut = true;
