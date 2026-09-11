@@ -99,6 +99,72 @@ describe("cli", () => {
       await rm(outputDir, { recursive: true, force: true });
     }
   });
+
+  it("writes receipts for synchronous null-byte argv and env throws and exits nonzero", async () => {
+    const outputDir = await mkdtemp(path.join(tmpdir(), "smokeroll-invalid-"));
+    const markdownPath = path.join(outputDir, "result.md");
+    const jsonPath = path.join(outputDir, "result.json");
+
+    try {
+      const { exitCode, stdout } = await captureCli(() =>
+        main([
+          "run",
+          "fixtures/invalid-args/smokeroll.json",
+          "--transcript",
+          markdownPath,
+          "--json",
+          jsonPath,
+        ]),
+      );
+
+      assert.equal(exitCode, 1);
+      assert.match(stdout, /SmokeRoll FAIL: 2 commands run/);
+
+      const markdown = await readFile(markdownPath, "utf8");
+      assert.match(markdown, /FAIL: null byte in args/);
+      assert.match(markdown, /Spawn error: `ERR_INVALID_ARG_VALUE`/);
+      assert.match(markdown, /PASS: continues after invalid args/);
+
+      const json = JSON.parse(await readFile(jsonPath, "utf8"));
+      assert.equal(json.passed, false);
+      assert.equal(json.results.length, 2);
+      assert.equal(json.results[0].execution.exitCode, null);
+      assert.equal(json.results[0].execution.error.code, "ERR_INVALID_ARG_VALUE");
+      assert.equal(json.results[1].passed, true);
+    } finally {
+      await rm(outputDir, { recursive: true, force: true });
+    }
+
+    const envOutputDir = await mkdtemp(path.join(tmpdir(), "smokeroll-invalid-env-"));
+    const envMarkdownPath = path.join(envOutputDir, "result.md");
+    const envJsonPath = path.join(envOutputDir, "result.json");
+
+    try {
+      const { exitCode } = await captureCli(() =>
+        main([
+          "run",
+          "fixtures/invalid-env/smokeroll.json",
+          "--fail-fast",
+          "--transcript",
+          envMarkdownPath,
+          "--json",
+          envJsonPath,
+        ]),
+      );
+
+      assert.equal(exitCode, 1);
+
+      const markdown = await readFile(envMarkdownPath, "utf8");
+      assert.match(markdown, /FAIL: null byte in env/);
+      assert.doesNotMatch(markdown, /continues after invalid env/);
+
+      const json = JSON.parse(await readFile(envJsonPath, "utf8"));
+      assert.equal(json.results.length, 1);
+      assert.match(json.results[0].execution.error.message, /null bytes/);
+    } finally {
+      await rm(envOutputDir, { recursive: true, force: true });
+    }
+  });
 });
 
 async function captureCli(run: () => Promise<number>): Promise<{
