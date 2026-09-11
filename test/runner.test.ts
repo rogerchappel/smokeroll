@@ -103,6 +103,46 @@ describe("runPlan", () => {
     assert.equal(result.results[0]?.execution.error?.code, "ENOENT");
   });
 
+  it("records synchronous null-byte argv throws as failed receipts and continues by default", async () => {
+    const result = await runPlan(await loadManifest("fixtures/invalid-args/smokeroll.json"));
+
+    assert.equal(result.passed, false);
+    assert.equal(result.results.length, 2);
+    assert.equal(result.results[0]?.execution.exitCode, null);
+    assert.equal(result.results[0]?.execution.signal, null);
+    assert.equal(result.results[0]?.execution.timedOut, false);
+    assert.ok(result.results[0]?.execution.error?.code);
+    assert.match(result.results[0]?.execution.error?.message ?? "", /null bytes/);
+    assert.equal(result.results[0]?.passed, false);
+    assert.equal(result.results[1]?.passed, true);
+  });
+
+  it("records synchronous null-byte env throws as failed receipts and continues by default", async () => {
+    const result = await runPlan(await loadManifest("fixtures/invalid-env/smokeroll.json"));
+
+    assert.equal(result.passed, false);
+    assert.equal(result.results.length, 2);
+    assert.equal(result.results[0]?.execution.exitCode, null);
+    assert.equal(result.results[0]?.execution.signal, null);
+    assert.equal(result.results[0]?.execution.timedOut, false);
+    assert.ok(result.results[0]?.execution.error?.code);
+    assert.match(result.results[0]?.execution.error?.message ?? "", /null bytes/);
+    assert.equal(result.results[0]?.passed, false);
+    assert.equal(result.results[1]?.passed, true);
+  });
+
+  it("stops after a synchronous null-byte argv throw in fail-fast mode", async () => {
+    const result = await runPlan(
+      await loadManifest("fixtures/invalid-args/smokeroll.json"),
+      { failFast: true },
+    );
+
+    assert.equal(result.passed, false);
+    assert.equal(result.results.length, 1);
+    assert.equal(result.results[0]?.execution.exitCode, null);
+    assert.ok(result.results[0]?.execution.error?.code);
+  });
+
   it("passes the pass fixture", async () => {
     const result = await runPlan(await loadManifest("fixtures/pass/smokeroll.json"));
 

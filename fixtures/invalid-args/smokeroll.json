@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "commands": [
+    {
+      "name": "null byte in args",
+      "command": "node",
+      "args": ["\u0000x"],
+      "expect": { "exitCode": 0 }
+    },
+    {
+      "name": "continues after invalid args",
+      "command": "node",
+      "args": ["-e", "process.stdout.write('continued')"],
+      "expect": { "exitCode": 0, "stdoutContains": ["continued"] }
+    }
+  ]
+}
