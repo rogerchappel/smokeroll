@@ -17,6 +17,11 @@ format and uses semantic versioning when versioned releases are published.
 
 - Timeouts now terminate the full command process group on POSIX, with a
   documented 500 ms grace before forced termination.
+- Invalid argv or environment values (such as null bytes) that make
+  `spawn()` throw synchronously are now recorded as failed command
+  receipts instead of aborting the run; normal mode continues to later
+  commands, `--fail-fast` stops after writing the requested transcripts,
+  and the CLI exits `1`.
 
 ## Release Links
 
